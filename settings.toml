@@ -1,0 +1,2 @@
+interval_seconds = 1
+child_binary_name = "./bin/child_binary"
