@@ -198,20 +198,27 @@ fn run_service_loop() -> io::Result<()> {
 }
 
 fn restrict_log_acl_windows(log_file: &str) -> io::Result<()> {
-    let status1 = Command::new("icacls")
-        .args([log_file, "/inheritance:r"])
-        .status()?;
-
-    let status2 = Command::new("icacls")
+    // 1) Always grant required principals first, so we never lock out admins.
+    let grant_status = Command::new("icacls")
         .args([
             log_file,
-            "/grant:r",
+            "/grant",
             "*S-1-5-18:(F)",
             "*S-1-5-32-544:(F)",
         ])
         .status()?;
 
-    let status3 = Command::new("icacls")
+    if !grant_status.success() {
+        return Err(io::Error::other("failed to grant ACL entries with icacls"));
+    }
+
+    // 2) Remove inherited entries but keep explicit grants above.
+    let inheritance_status = Command::new("icacls")
+        .args([log_file, "/inheritance:r"])
+        .status()?;
+
+    // 3) Remove broad groups if present.
+    let remove_status = Command::new("icacls")
         .args([
             log_file,
             "/remove:g",
@@ -223,12 +230,9 @@ fn restrict_log_acl_windows(log_file: &str) -> io::Result<()> {
         ])
         .status()?;
 
-    if status1.success() && status2.success() && status3.success() {
+    if inheritance_status.success() && remove_status.success() {
         Ok(())
     } else {
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            "failed to apply ACL with icacls",
-        ))
+        Err(io::Error::other("failed to finalize ACL tightening with icacls"))
     }
 }
