@@ -16,8 +16,6 @@ func (f *PlainMessageFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 
 func main() {
-	_ = os.MkdirAll("logs", 0o755)
-
     logFile, err := os.OpenFile("logs/agent.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 
     if err != nil {

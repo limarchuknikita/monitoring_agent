@@ -16,3 +16,7 @@ use std::io;
 pub fn spawn_child_process(child_binary_name: &str, metrics: String) -> io::Result<Child> {
     runners::spawn_child_process(child_binary_name, metrics)
 }
+
+pub fn prepare_log_file(log_file: &str) -> io::Result<()> {
+    runners::prepare_log_file(log_file)
+}

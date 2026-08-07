@@ -4,6 +4,7 @@ use serde::Deserialize;
 pub struct Config {
     pub interval_seconds: u64,
     pub child_binary_name: String,
+    pub log_file_path: String,
 }
 
 pub fn load_config() -> Result<Config, config::ConfigError> {

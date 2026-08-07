@@ -1,2 +1,3 @@
 interval_seconds = 5
 child_binary_name = "./bin/child_binary"
+log_file_path = "./logs/agent.log"
