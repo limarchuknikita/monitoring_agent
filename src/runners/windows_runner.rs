@@ -155,6 +155,9 @@ fn run_service_loop() -> io::Result<()> {
         })
         .map_err(|err| io::Error::other(format!("failed to set running state: {err}")))?;
 
+    // Small delay to allow SCM to process the Running status and control acceptance
+    std::thread::sleep(Duration::from_millis(100));
+
     let mut sys = System::new_all();
     let pid = get_current_pid().map_err(|err| io::Error::other(format!("pid error: {err}")))?;
 
