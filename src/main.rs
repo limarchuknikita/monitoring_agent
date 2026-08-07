@@ -15,6 +15,15 @@ fn main() {
         return;
     }
 
+    match runners::try_run_service_mode() {
+        Ok(true) => return,
+        Ok(false) => {}
+        Err(err) => {
+            eprintln!("[Error] Failed to start service mode: {}", err);
+            std::process::exit(1);
+        }
+    }
+
     let config = config_manager::load_config().expect("Failed to load configuration");
     runners::prepare_log_file(&config.log_file_path).expect("Failed to prepare log file path");
 

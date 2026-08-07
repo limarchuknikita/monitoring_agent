@@ -10,8 +10,8 @@ mod runners;
 #[path = "macos_runner.rs"]
 mod runners;
 
-use std::process::Child;
 use std::io;
+use std::process::Child;
 
 pub fn spawn_child_process(child_binary_name: &str, metrics: String) -> io::Result<Child> {
     runners::spawn_child_process(child_binary_name, metrics)
@@ -23,4 +23,8 @@ pub fn prepare_log_file(log_file: &str) -> io::Result<()> {
 
 pub fn install_service() -> io::Result<()> {
     runners::install_service()
+}
+
+pub fn try_run_service_mode() -> io::Result<bool> {
+    runners::try_run_service_mode()
 }

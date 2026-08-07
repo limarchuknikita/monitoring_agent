@@ -32,3 +32,7 @@ pub fn install_service() -> io::Result<()> {
         "--install is only supported on Windows",
     ))
 }
+
+pub fn try_run_service_mode() -> io::Result<bool> {
+    Ok(false)
+}

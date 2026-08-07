@@ -10,3 +10,6 @@ log = "0.4.33"
 serde = { version = "1.0.229", features = ["derive"] }
 stats = "0.0.1"
 sysinfo = "0.38.4"
+
+[target.'cfg(windows)'.dependencies]
+windows-service = "0.7.0"
