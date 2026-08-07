@@ -3,7 +3,8 @@ package main
 import (
 	"io"
 	"os"
-    logrus "github.com/sirupsen/logrus"
+
+	logrus "github.com/sirupsen/logrus"
 )
 
 
@@ -16,14 +17,15 @@ func (f *PlainMessageFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 
 func main() {
-    logFile, err := os.OpenFile("logs/agent.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
-
-    if err != nil {
-        panic(err)
-    }
-    defer logFile.Close()
+	logFile, err := os.OpenFile("logs/agent.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 	logger := logrus.New()
-	logger.SetOutput(io.MultiWriter(os.Stdout, logFile))
+	if err != nil {
+		logger.SetOutput(os.Stdout)
+		logger.Errorf("opening log file failed: %v", err)
+	} else {
+		defer logFile.Close()
+		logger.SetOutput(io.MultiWriter(os.Stdout, logFile))
+	}
 
 
 	logger.SetFormatter(&PlainMessageFormatter{})

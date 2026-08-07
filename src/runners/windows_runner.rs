@@ -45,10 +45,27 @@ fn restrict_log_acl_windows(log_file: &str) -> io::Result<()> {
         .status()?;
 
     let status2 = Command::new("icacls")
-        .args([log_file, "/grant:r", "SYSTEM:(F)", "Administrators:(F)"])
+        .args([
+            log_file,
+            "/grant:r",
+            "*S-1-5-18:(F)",
+            "*S-1-5-32-544:(F)",
+        ])
         .status()?;
 
-    if status1.success() && status2.success() {
+    let status3 = Command::new("icacls")
+        .args([
+            log_file,
+            "/remove:g",
+            "*S-1-1-0",
+            "*S-1-5-11",
+            "Users",
+            "Everyone",
+            "Authenticated Users",
+        ])
+        .status()?;
+
+    if status1.success() && status2.success() && status3.success() {
         Ok(())
     } else {
         Err(io::Error::new(
