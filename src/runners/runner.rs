@@ -13,6 +13,6 @@ mod runners;
 use std::process::Child;
 use std::io;
 
-pub fn spawn_child_process(child_binary_name: &str, metrics: &[String]) -> io::Result<Child> {
+pub fn spawn_child_process(child_binary_name: &str, metrics: String) -> io::Result<Child> {
     runners::spawn_child_process(child_binary_name, metrics)
 }

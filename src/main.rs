@@ -17,12 +17,9 @@ fn main() {
     loop {        
         let time_utc = chrono::Utc::now();
         let rss_metric = metrics_utilities::rss_mb_for_pid(&mut sys, pid).unwrap_or(0.0);
-        let metrics = vec![
-            format!("{}", time_utc.format("%Y-%m-%d %H:%M:%S")),
-            format!("{:.2}", rss_metric),
-        ];
+        let metrics = format!("{} | {:.2} MB", time_utc.format("%Y-%m-%d %H:%M:%S"), rss_metric);
 
-        if let Err(e) = runners::spawn_child_process(&config.child_binary_name, &metrics) {
+        if let Err(e) = runners::spawn_child_process(&config.child_binary_name, metrics) {
             eprintln!("[Error] Failed to spawn child process: {}", e);
         }
 

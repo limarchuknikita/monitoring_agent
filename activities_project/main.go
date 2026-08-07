@@ -30,13 +30,12 @@ func main() {
 
 	logger.SetFormatter(&PlainMessageFormatter{})
 
-	if len(os.Args) < 3 {
-		logger.Errorf("Provide next arguments: <arg1> <arg2>")
+	if len(os.Args) < 2 {
+		logger.Errorf("Provide next arguments: <arg1>")
 		os.Exit(1)
 	}
 
 	arg1 := os.Args[1]
-	arg2 := os.Args[2]
 
-	logger.Infof("%s | RSS: %s MB", arg1, arg2)
+	logger.Infof("%s", arg1)
 }
