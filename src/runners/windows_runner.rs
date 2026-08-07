@@ -57,9 +57,12 @@ pub fn install_service() -> io::Result<()> {
         .args([
             "create",
             "monitoring_agent",
-            &format!("binPath= \"{}\"", bin_path),
-            "start= auto",
-            "DisplayName= Monitoring Agent",
+            "binPath=",
+            &bin_path,
+            "start=",
+            "auto",
+            "DisplayName=",
+            "Monitoring Agent",
         ])
         .status()?;
 
