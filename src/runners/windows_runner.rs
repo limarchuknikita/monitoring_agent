@@ -141,8 +141,6 @@ fn run_service_loop() -> io::Result<()> {
     let config = config_manager::load_config()
         .map_err(|err| io::Error::other(format!("Failed to load configuration: {err}")))?;
 
-    prepare_log_file(&config.log_file_path)?;
-
     status_handle
         .set_service_status(ServiceStatus {
             service_type: ServiceType::OWN_PROCESS,
@@ -154,6 +152,13 @@ fn run_service_loop() -> io::Result<()> {
             process_id: None,
         })
         .map_err(|err| io::Error::other(format!("failed to set running state: {err}")))?;
+
+    if let Err(err) = prepare_log_file(&config.log_file_path) {
+        eprintln!(
+            "[Service] Log file preparation failed, continuing without ACL setup: {}",
+            err
+        );
+    }
 
     // Small delay to allow SCM to process the Running status and control acceptance
     std::thread::sleep(Duration::from_millis(100));
