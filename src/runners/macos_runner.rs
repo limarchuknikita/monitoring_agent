@@ -25,3 +25,10 @@ pub fn prepare_log_file(log_file: &str) -> io::Result<()> {
 
     Ok(())
 }
+
+pub fn install_service() -> io::Result<()> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported,
+        "--install is only supported on Windows",
+    ))
+}

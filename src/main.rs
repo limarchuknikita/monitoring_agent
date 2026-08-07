@@ -1,4 +1,4 @@
-use std::{println, thread, time::Duration};
+use std::{env, println, thread, time::Duration};
 use sysinfo::{get_current_pid, System};
 
 mod config_manager;
@@ -6,6 +6,15 @@ mod metrics_utilities;
 mod runners;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    if args.iter().any(|arg| arg == "--install") {
+        if let Err(err) = runners::install_service() {
+            eprintln!("[Error] Failed to install service: {}", err);
+            std::process::exit(1);
+        }
+        return;
+    }
+
     let config = config_manager::load_config().expect("Failed to load configuration");
     runners::prepare_log_file(&config.log_file_path).expect("Failed to prepare log file path");
 

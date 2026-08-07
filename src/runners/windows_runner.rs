@@ -39,6 +39,40 @@ pub fn prepare_log_file(log_file: &str) -> io::Result<()> {
     Ok(())
 }
 
+pub fn install_service() -> io::Result<()> {
+    let current_exe = std::env::current_exe()?;
+    let bin_path = current_exe.to_string_lossy().to_string();
+
+    let delete_status = Command::new("sc")
+        .args(["delete", "monitoring_agent"])
+        .status();
+
+    if let Ok(status) = delete_status {
+        if status.success() {
+            println!("[Install] Removed existing service 'monitoring_agent'.");
+        }
+    }
+
+    let create_status = Command::new("sc")
+        .args([
+            "create",
+            "monitoring_agent",
+            &format!("binPath= \"{}\"", bin_path),
+            "start= auto",
+            "DisplayName= Monitoring Agent",
+        ])
+        .status()?;
+
+    if !create_status.success() {
+        return Err(io::Error::other("'sc create' failed"));
+    }
+
+    println!("[Install] Service 'monitoring_agent' installed successfully.");
+    println!("[Install] Start it with: sc.exe start monitoring_agent");
+
+    Ok(())
+}
+
 fn restrict_log_acl_windows(log_file: &str) -> io::Result<()> {
     let status1 = Command::new("icacls")
         .args([log_file, "/inheritance:r"])

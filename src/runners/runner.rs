@@ -20,3 +20,7 @@ pub fn spawn_child_process(child_binary_name: &str, metrics: String) -> io::Resu
 pub fn prepare_log_file(log_file: &str) -> io::Result<()> {
     runners::prepare_log_file(log_file)
 }
+
+pub fn install_service() -> io::Result<()> {
+    runners::install_service()
+}
