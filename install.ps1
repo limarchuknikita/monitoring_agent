@@ -277,10 +277,16 @@ try {
     Write-Step "Copying Rust service binary"
     $rustOutput = Join-Path $scriptDir "target\x86_64-pc-windows-msvc\release\monitoring_agent.exe"
     $serviceOutput = Join-Path $binDir "monitoring_agent.exe"
+    $settingsSource = Join-Path $scriptDir "settings.toml"
+    $settingsOutput = Join-Path $binDir "settings.toml"
     if (-not (Test-Path -LiteralPath $rustOutput -PathType Leaf)) {
         throw "Rust build reported success, but '$rustOutput' was not created. Check the package/binary name in Cargo.toml."
     }
     Copy-Item -LiteralPath $rustOutput -Destination $serviceOutput -Force
+    if (-not (Test-Path -LiteralPath $settingsSource -PathType Leaf)) {
+        throw "settings.toml was not found at '$settingsSource'."
+    }
+    Copy-Item -LiteralPath $settingsSource -Destination $settingsOutput -Force
 
     Write-Step "Installing Windows service monitoring_agent"
     Invoke-Native -FilePath $serviceOutput -ArgumentList @("--install")
