@@ -1,4 +1,4 @@
-module activities_project
+module example.com/monitoring-agent
 
 go 1.24.4
 

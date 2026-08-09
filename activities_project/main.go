@@ -1,11 +1,13 @@
 package main
 
 import (
-	"activities_project/configmanager"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
+
+	"example.com/monitoring-agent/configmanager"
 
 	logrus "github.com/sirupsen/logrus"
 )
@@ -55,6 +57,11 @@ func main() {
 	if err != nil {
 		logger.SetOutput(os.Stdout)
 		logger.Warnf("loading config failed, using default log path: %v", err)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(logFilePath), 0o755); err != nil {
+		logger.SetOutput(os.Stdout)
+		logger.Warnf("creating log directory failed: %v", err)
 	}
 
 	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)

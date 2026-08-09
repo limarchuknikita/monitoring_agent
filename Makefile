@@ -1,5 +1,5 @@
 build_child:
-	go build -o ./bin/child_binary ./activities_project/main.go
+	cd ./activities_project && go build -o ../bin/child_binary .
 
 build_service:
 	cargo build --release
