@@ -3,9 +3,19 @@ use std::io;
 use std::path::Path;
 use std::process::{Command, Child};
 
-pub fn spawn_child_process(child_binary_name: &str, metrics: String) -> std::io::Result<Child> {
-    Command::new(child_binary_name)
-        .arg(metrics)
+pub fn spawn_child_process(
+    child_binary_name: &str,
+    metrics: String,
+) -> std::io::Result<Child> {
+    let mut cmd = Command::new(child_binary_name);
+    if let Some(parent) = Path::new(child_binary_name).parent() {
+        if !parent.as_os_str().is_empty() {
+            cmd.current_dir(parent);
+        }
+    }
+
+    cmd.arg(metrics)
+        .arg("--once")
         .spawn()
 }
 

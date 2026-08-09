@@ -272,7 +272,13 @@ try {
     $env:GOOS = "windows"
     $env:GOARCH = "amd64"
     $goOutput = Join-Path $binDir "child_binary.exe"
-    Invoke-Native -FilePath $go -ArgumentList @("build", "-o", $goOutput, $goMain)
+    Push-Location (Join-Path $scriptDir "activities_project")
+    try {
+        Invoke-Native -FilePath $go -ArgumentList @("build", "-o", $goOutput, ".\main.go")
+    }
+    finally {
+        Pop-Location
+    }
 
     Write-Step "Copying Rust service binary"
     $rustOutput = Join-Path $scriptDir "target\x86_64-pc-windows-msvc\release\monitoring_agent.exe"
@@ -288,11 +294,11 @@ try {
     }
     Copy-Item -LiteralPath $settingsSource -Destination $settingsOutput -Force
 
-    Write-Step "Installing Windows service monitoring_agent"
+    Write-Step "Installing Windows service FlamingoAgent"
     Invoke-Native -FilePath $serviceOutput -ArgumentList @("--install")
 
     Write-Step "Done"
-    Write-Host "Service installation completed. Start it with: sc.exe start monitoring_agent" -ForegroundColor Green
+    Write-Host "Service installation completed. Start it with: sc.exe start FlamingoAgent" -ForegroundColor Green
 }
 finally {
     $env:GOOS = $oldGoOs

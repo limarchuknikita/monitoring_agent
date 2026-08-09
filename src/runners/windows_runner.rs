@@ -13,7 +13,7 @@ use windows_service::service::{
 use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
 use windows_service::{define_windows_service, service_dispatcher};
 
-const SERVICE_NAME: &str = "monitoring_agent";
+const SERVICE_NAME: &str = "FlamingoAgent";
 
 define_windows_service!(ffi_service_main, service_main);
 
@@ -21,14 +21,49 @@ pub fn spawn_child_process(
     child_binary_path: &str,
     metrics: String,
 ) -> io::Result<Child> {
-    let mut cmd = Command::new(child_binary_path);
-    cmd.arg(metrics);
+    // Attempt explicit elevation first in interactive contexts.
+    // This can fail under services (non-interactive desktop), so we fall back
+    // to direct spawn where the service token (typically LocalSystem) is used.
+    if let Ok(child) = spawn_child_elevated_windows(child_binary_path, &metrics) {
+        return Ok(child);
+    }
 
-    // On Windows, the child inherits the parent's security token.
-    // If the parent runs elevated, the child runs elevated too.
-    // Stdout/stderr are inherited so logs appear in the parent console.
-    cmd.stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
+    let mut cmd = Command::new(child_binary_path);
+    if let Some(parent) = Path::new(child_binary_path).parent() {
+        if !parent.as_os_str().is_empty() {
+            cmd.current_dir(parent);
+        }
+    }
+
+    cmd.arg(metrics)
+        .arg("--once")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit());
+
+    cmd.spawn()
+}
+
+fn spawn_child_elevated_windows(
+    child_binary_path: &str,
+    metrics: &str,
+) -> io::Result<Child> {
+    fn ps_escape(input: &str) -> String {
+        input.replace('\'', "''")
+    }
+
+    let script = format!(
+        "Start-Process -FilePath '{}' -ArgumentList @('{}','--once') -Verb RunAs -WindowStyle Hidden",
+        ps_escape(child_binary_path),
+        ps_escape(metrics)
+    );
+
+    Command::new("powershell")
+        .arg("-NoProfile")
+        .arg("-NonInteractive")
+        .arg("-Command")
+        .arg(script)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .spawn()
 }
 
